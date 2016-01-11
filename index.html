@@ -1,0 +1,197 @@
+<!;DOCTYPE; html>
+<meta charset="utf-8">
+<style>
+
+body{
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 12px;
+}
+
+.svg-container{
+  width: 256px;
+  display: inline-block;
+  margin-right: 5px;
+  text-align: center;
+}
+
+svg{
+  margin-top: 5px;
+  border: 1px solid #ccc;
+}
+
+.background {
+  fill: #eee;
+  pointer-events: all;
+}
+
+.map-layer {
+  fill: #fff;
+  stroke: #aaa;
+}
+
+.axis path,
+.axis line{
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 0.5px;
+}
+
+text{
+  font-weight: 300;
+}
+
+</style>
+<body>
+
+<!-- raw -->
+<div class="svg-container">
+  <b>Thailand Geographic Map</b>
+  <br>
+  <svg id="step0"></svg>
+</div>
+<!-- collision -->
+<div class="svg-container">
+  <b>Thailand Grid Map</b><br>
+  <svg id="step1"></svg>
+</div>
+
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var options = {
+  rectSize: 16,
+  gridSize: 10,
+  offsetX: -72,
+  offsetY: -24
+};
+
+var width = 352;
+var height = 496;
+
+// Define color scale
+var color = d3.scale.quantize()
+  .domain([1, 20])
+  .range(['#b2ddf0', '#92bcd8', '#769cbf', '#5d7da7', '#46608f', '#334577', '#232d5f']);
+
+var projection = d3.geo.mercator()
+  .scale(1700)
+  // Customize the projection to make the center of Thailand become the center of the map
+  .rotate([-100.6331, -13.2])
+  .translate([width / 2, height / 2]);
+
+var path = d3.geo.path()
+  .projection(projection);
+
+// grid
+var xScale = d3.scale.linear()
+    .domain([0, width])
+    .range([0, width]);
+
+var yScale = d3.scale.linear()
+    .domain([0, height])
+    .range([0, height]);
+
+var xAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient('bottom')
+    .innerTickSize(-height)
+    .outerTickSize(0)
+    .tickValues(d3.range(0,width,options.rectSize));
+
+var yAxis = d3.svg.axis()
+    .scale(yScale)
+    .orient('left')
+    .innerTickSize(-width)
+    .outerTickSize(0)
+    .tickValues(d3.range(0,height,options.rectSize));
+
+function drawGrid(container){
+  var axisLayer = container.append('g');
+
+  axisLayer.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+  axisLayer.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+}
+
+// Set svg width & height
+var svgs = d3.range(0,2).map(function(step){
+  var svg = d3.select('svg#step'+step)
+    .attr('transform', 'translate('+(0.5)+','+(0.5)+')')
+    .attr('width', 256)
+    .attr('height', 448);
+
+  svg.append('g')
+    .attr('transform', 'translate('+options.offsetX+', '+options.offsetY+')')
+    .classed('map-layer', true);
+
+  return svg;
+});
+
+queue()
+  .defer(d3.json, 'data/thailand.json')
+  .defer(d3.json, 'data/gridmap-layout-thailand.json')
+  .await(function(error, thailand, thgridmap){
+    var features = thailand.features;
+
+    // Update color scale domain based on data
+    color.domain([0, d3.max(features, nameLength)]);
+
+    function drawMap(container){
+      // Draw each province as a path
+      container.select('.map-layer').selectAll('path')
+          .data(features)
+        .enter().append('path')
+          .attr('d', path)
+          .style('stroke', 'none')
+          .style('fill', fillFn)
+          .style('opacity', 0.5)
+          .attr('vector-effect', 'non-scaling-stroke');
+    }
+
+    drawMap(svgs[0]);
+
+    var sEnter = svgs[1].append('g')
+        .attr('transform', 'translate('+(8)+','+(8)+')')
+      .selectAll('g')
+        .data(thgridmap)
+      .enter().append('g')
+        .attr('transform', function(d){return 'translate('+(d.x*24)+','+(d.y*24)+')';});
+
+    sEnter.append('rect')
+      .attr('width', 24)
+      .attr('height', 24)
+      .attr('vector-effect', 'non-scaling-stroke')
+      .style('opacity', 0.5)
+      .style('stroke', '#aaa')
+      .style('fill', function(d){return color(d.enName.length);});
+
+    sEnter.append('text')
+      .attr('x', 12)
+      .attr('y', 16)
+      .style('text-anchor', 'middle')
+      .text(function(d){return d.thAbbr;});
+  });
+
+// Get province name
+function nameFn(d){
+  return d && d.properties ? d.properties.CHA_NE : null;
+}
+
+// Get province name length
+function nameLength(d){
+  var n = nameFn(d);
+  return n ? n.length : 0;
+}
+
+// Get province color
+function fillFn(d){
+  return color(nameLength(d));
+}
+
+</script>

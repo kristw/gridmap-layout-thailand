@@ -1,0 +1,258 @@
+<!;DOCTYPE; html>
+<meta charset="utf-8">
+<style>
+
+body{
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 12px;
+}
+
+.svg-container{
+  width: 256px;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+svg{
+  margin-top: 5px;
+  border: 1px solid #ccc;
+}
+
+.background {
+  fill: #eee;
+  pointer-events: all;
+}
+
+.map-layer {
+  fill: #fff;
+  stroke: #aaa;
+}
+
+.axis path,
+.axis line{
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 0.5px;
+}
+
+text{
+  font-weight: 300;
+}
+
+</style>
+<body>
+
+<!-- raw -->
+<div class="svg-container">
+  <b>Step 1.</b> For each province, create one rectangle centered at its centroid.<br>
+  <svg id="step0"></svg>
+</div>
+<!-- collision -->
+<div class="svg-container">
+  <b>Step 2.</b> Use force-directed approach to avoid collisions between rectangles.<br>
+  <svg id="step1"></svg>
+</div>
+<!-- snap -->
+<div class="svg-container">
+  <b>Step 3.</b> Snap rectangles to a grid with the same cell size as the rectangles.<br>
+  <svg id="step2"></svg>
+</div>
+<!-- export -->
+<div class="svg-container">
+  <b>Step 4.</b> Export data as csv and manually curate in Google Sheets.<br>
+  <svg id="step3"></svg>
+</div>
+<!-- curate -->
+<div class="svg-container">
+  <b>Step 5.</b> After curation, the map becomes one connected piece and consumes less space.<br>
+  <svg id="step4"></svg>
+</div>
+
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var options = {
+  rectSize: 16,
+  gridSize: 10,
+  offsetX: -72,
+  offsetY: -24
+};
+
+var width = 352;
+var height = 496;
+
+var projection = d3.geo.mercator()
+  .scale(1700)
+  // Customize the projection to make the center of Thailand become the center of the map
+  .rotate([-100.6331, -13.2])
+  .translate([width / 2, height / 2]);
+
+var path = d3.geo.path()
+  .projection(projection);
+
+// grid
+var xScale = d3.scale.linear()
+    .domain([0, width])
+    .range([0, width]);
+
+var yScale = d3.scale.linear()
+    .domain([0, height])
+    .range([0, height]);
+
+var xAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient('bottom')
+    .innerTickSize(-height)
+    .outerTickSize(0)
+    .tickValues(d3.range(0,width,options.rectSize));
+
+var yAxis = d3.svg.axis()
+    .scale(yScale)
+    .orient('left')
+    .innerTickSize(-width)
+    .outerTickSize(0)
+    .tickValues(d3.range(0,height,options.rectSize));
+
+function drawGrid(container){
+  var axisLayer = container.append('g');
+
+  axisLayer.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+  axisLayer.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+}
+
+// Set svg width & height
+var svgs = d3.range(0,5).map(function(step){
+  var svg = d3.select('svg#step'+step)
+    .attr('transform', 'translate('+(0.5)+','+(0.5)+')')
+    .attr('width', 256)
+    .attr('height', 448);
+
+  svg.append('g')
+    .attr('transform', 'translate('+options.offsetX+', '+options.offsetY+')')
+    .classed('map-layer', true);
+
+  return svg;
+});
+
+queue()
+  .defer(d3.json, 'data/thailand.json')
+  .defer(d3.json, 'data/step1_collision.json')
+  .defer(d3.json, 'data/step2_snap.json')
+  .defer(d3.json, 'data/gridmap-layout-thailand.json')
+  .await(function(error, thailand, step1, step2, thgridmap){
+    var features = thailand.features;
+
+    function drawMap(container){
+      // Draw each province as a path
+      container.select('.map-layer').selectAll('path')
+          .data(features)
+        .enter().append('path')
+          .attr('d', path)
+          .style('stroke', 'none')
+          .style('fill', '#ccc')
+          .style('opacity', 0.5)
+          .attr('vector-effect', 'non-scaling-stroke');
+    }
+
+    function drawRect(container, data, showOrigin){
+      var selection = container.select('.map-layer').selectAll('rect')
+          .data(data)
+        .enter().append('rect')
+          .attr('width', options.rectSize)
+          .attr('height', options.rectSize)
+          .attr('vector-effect', 'non-scaling-stroke')
+          .style('opacity', 0.5)
+          .style('fill', '#409A99')
+          .on('click', function(d){
+            console.log(d.properties.CHA_NE);
+          });
+
+      if(showOrigin){
+        selection.attr('x', function(d) {
+            return d.clusterX - options.rectSize/2;
+          })
+          .attr('y', function(d) {
+            return d.clusterY - options.rectSize/2;
+          });
+      }
+      else{
+        selection.attr('x', function(d) {
+            return d.cx - options.rectSize/2;
+          })
+          .attr('y', function(d) {
+            return d.cy - options.rectSize/2;
+          });
+      }
+    }
+
+    function drawDisplacement(container, data){
+      var mapLayer = container.select('.map-layer');
+
+      mapLayer.selectAll('line')
+          .data(data)
+        .enter().append('line')
+          .style('stroke-width', 1)
+          .style('stroke', '#222')
+          .attr('x1', function(d) { return d.cx; })
+          .attr('y1', function(d) { return d.cy; })
+          .attr('x2', function(d) { return d.clusterX; })
+          .attr('y2', function(d) { return d.clusterY; });
+
+      mapLayer.selectAll('circle')
+        .data(data)
+      .enter().append('circle')
+        .attr('r', 2)
+        .style('fill', '#222')
+        .style('stroke', '#222')
+        .attr('cx', function(d) { return d.cx; })
+        .attr('cy', function(d) { return d.cy; });
+    }
+
+    svgs
+      .filter(function(d,i){return i>1;})
+      .forEach(drawGrid);
+
+    svgs
+      .filter(function(d,i){return i<3;})
+      .forEach(drawMap);
+
+    drawRect(svgs[0], step1, true);
+    drawRect(svgs[1], step1);
+    drawRect(svgs[2], step2);
+    drawRect(svgs[3], step2);
+
+    drawDisplacement(svgs[1], step1);
+    drawDisplacement(svgs[2], step2);
+
+    svgs[4].selectAll('rect')
+        .data(thgridmap)
+      .enter().append('rect')
+        .attr('x', function(d){return d.x*options.rectSize;})
+        .attr('y', function(d){return d.y*options.rectSize;})
+        .attr('width', options.rectSize)
+        .attr('height', options.rectSize)
+        .attr('vector-effect', 'non-scaling-stroke')
+        .style('opacity', 0.5)
+        .style('fill', '#409A99');
+
+    svgs[4].append('rect')
+      .style('fill', 'rgba(0,0,0,0.2)')
+      .attr('x', options.rectSize*10)
+      .attr('width', options.rectSize*10)
+      .attr('height', options.rectSize*28);
+
+    svgs[4].append('rect')
+      .style('fill', 'rgba(0,0,0,0.2)')
+      .attr('y', options.rectSize*18)
+      .attr('width', options.rectSize*10)
+      .attr('height', options.rectSize*10);
+  });
+
+</script>
