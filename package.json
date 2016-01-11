@@ -1,6 +1,6 @@
 {
   "name": "gridmap-layout-thailand",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Positions of tiles for Thailand grid map visualization",
   "main": "dist/gridmap-layout-thailand.min.js",
   "author": "Krist Wongsuphasawat <krist.wongz@gmail.com> (http://kristw.yellowpigz.com)",
