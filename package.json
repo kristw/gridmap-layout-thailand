@@ -1,0 +1,33 @@
+{
+  "name": "gridmap-layout-thailand",
+  "version": "0.0.0",
+  "description": "Positions of tiles for Thailand grid map visualization",
+  "main": "dist/gridmap-layout-thailand.min.js",
+  "author": "Krist Wongsuphasawat <krist.wongz@gmail.com> (http://kristw.yellowpigz.com)",
+  "license": "MIT",
+  "keywords": [
+    "gridmap",
+    "gridmap-layout",
+    "visualization",
+    "thailand"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "d3": "~3.5",
+    "lodash": "~3.10.1",
+    "mu2": "~0.5.20",
+    "uglify-js": "~2.6.1",
+    "grunt": "~0.4.5",
+    "grunt-bump": "~0.3.1",
+    "grunt-cli": "~0.1.13",
+    "grunt-shell": "~1.1.2",
+    "grunt-gh-pages": "~0.10.0",
+    "load-grunt-config": "~0.17.1",
+    "time-grunt": "~1.2.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "precurate": "node src/precurate.js",
+    "postcurate": "node src/postcurate.js && node_modules/uglify-js/bin/uglifyjs --compress --mangle -- src/output/gridmap-layout-thailand.js > src/output/gridmap-layout-thailand.min.js && cp src/input/*.* examples/data && cp src/output/*.* examples/data && cp src/output/gridmap-layout*.* dist"
+  }
+}
