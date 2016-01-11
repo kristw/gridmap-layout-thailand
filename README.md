@@ -1,10 +1,6 @@
 # gridmap-layout-thailand
 
-Positions of tiles for Thailand grid map visualization
-
-<p align="center">
-  <img src="examples/screenshot.png">
-</p>
+Positions of tiles for Thailand grid map visualization. See [demo](http://kristw.github.io/gridmap-layout-thailand/)
 
 ### Install
 
@@ -25,9 +21,9 @@ The data files can be found in the ```dist``` directory of the installed package
 - dist/gridmap-layout-thailand.js
 - dist/gridmap-layout-thailand.min.js
 
-The data in each file is an array of values in this format:
+The data in each file is an array of tiles (provinces). Each tile is in this format:
 
-```
+```javascript
 [
   {
     "x": 2, // column index
@@ -45,7 +41,7 @@ The data in each file is an array of values in this format:
 
 One way to use this is to use with D3.
 
-```
+```javascript
 d3.json('path/to/gridmap-layout-thailand/gridmap-layout-thailand.json', function(error, thgridmap){
   var svg = d3.select('svg');
 
@@ -73,11 +69,15 @@ d3.json('path/to/gridmap-layout-thailand/gridmap-layout-thailand.json', function
 
 ### Development
 
+Read about the process from this [blog post](https://medium.com/@kristw/397b53a4ecf).
+
+First, generate an output from the *force-directed + snap-to-grid* approach. The output is available at ```src/output/step3.csv``` and can be opened in Excel or Google Sheets to curate manually.
+
 ```
 npm run precurate
 ```
 
-After editing ```src/output/step3.csv``` and save as ```src/output/step3_curated.csv```, run this command to produce the final output and copy to examples and dist directories.
+After editing ```src/output/step3.csv``` and save as ```src/output/step3_curated.csv```, run this command to produce the final output and copy files to `examples` and `dist` directories.
 
 ```
 npm run postcurate
