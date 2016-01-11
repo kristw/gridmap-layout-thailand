@@ -2,6 +2,10 @@
 
 Positions of tiles for Thailand grid map visualization. See [demo](http://kristw.github.io/gridmap-layout-thailand/)
 
+<p align="center">
+  <img src="examples/screenshot.png">
+</p>
+
 ### Install
 
 ```
