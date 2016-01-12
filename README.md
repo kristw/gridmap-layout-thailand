@@ -86,3 +86,5 @@ After editing ```src/output/step3.csv``` and save as ```src/output/step3_curated
 ```
 npm run postcurate
 ```
+
+Copyright (c) 2016 Krist Wongsuphasawat. Licensed under the MIT License
