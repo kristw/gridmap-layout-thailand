@@ -1,0 +1,34 @@
+{
+  "name": "gridmap-layout-thailand",
+  "description": "Positions of tiles for Thailand grid map visualization",
+  "homepage": "https://github.com/kristw/gridmap-layout-thailand",
+  "main": "dist/gridmap-layout-thailand.min.js",
+  "authors": [
+    "Krist Wongsuphasawat <krist.wongz@gmail.com> (http://kristw.yellowpigz.com)"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "gridmap",
+    "gridmap-layout",
+    "visualization",
+    "thailand"
+  ],
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "src",
+    "examples",
+    "docs",
+    "Gruntfile.js",
+    "grunt/*.js",
+    "package.json"
+  ]
+}
