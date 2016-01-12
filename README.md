@@ -85,7 +85,7 @@ d3.json('path/to/gridmap-layout-thailand/dist/gridmap-layout-thailand.json', fun
 
 ### Development
 
-Read about the process from this [blog post](https://medium.com/@kristw/397b53a4ecf).
+Read about the process from this [blog post](https://medium.com/@kristw/creating-grid-map-for-thailand-397b53a4ecf).
 
 First, generate an output from the *force-directed + snap-to-grid* approach. The output is available at ```src/output/step3.csv``` and can be opened in Excel or Google Sheets to curate manually.
 
