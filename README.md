@@ -46,7 +46,7 @@ The data in each file is an array of tiles (provinces). Each tile is in this for
 One way to use this is to use with D3.
 
 ```javascript
-d3.json('path/to/gridmap-layout-thailand/gridmap-layout-thailand.json', function(error, thgridmap){
+d3.json('path/to/gridmap-layout-thailand/dist/gridmap-layout-thailand.json', function(error, thgridmap){
   var svg = d3.select('svg');
 
   var sEnter = svg.append('g')
