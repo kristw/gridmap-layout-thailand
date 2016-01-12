@@ -43,29 +43,41 @@ The data in each file is an array of tiles (provinces). Each tile is in this for
 
 ### Example Usage
 
-One way to use this is to use with D3.
+One way to use this is to use with [D3.js](http://d3js.org/). See a live example on [bl.ocks.org](http://bl.ocks.org/kristw/09ead46529638309cd60).
 
 ```javascript
-d3.json('path/to/gridmap-layout-thailand/dist/gridmap-layout-thailand.json', function(error, thgridmap){
-  var svg = d3.select('svg');
+d3.json('path/to/gridmap-layout-thailand/dist/gridmap-layout-thailand.json', function(error, gridmapLayoutThailand){
+  var options = {
+    rectWidth: 25,
+    rectHeight: 25
+  };
+
+  // Define color scale
+  var color = d3.scale.quantize()
+    .domain([1, 20])
+    .range(['#b2ddf0', '#92bcd8', '#769cbf', '#5d7da7', '#46608f', '#334577', '#232d5f']);
+
+  var svg = d3.select('svg')
+    .attr('width', 250)
+    .attr('height', 450);
 
   var sEnter = svg.append('g')
     .selectAll('g')
-      .data(thgridmap)
+      .data(gridmapLayoutThailand)
     .enter().append('g')
-      .attr('transform', function(d){return 'translate('+(d.x*24)+','+(d.y*24)+')';});
+      .attr('transform', function(d){return 'translate('+(d.x*options.rectWidth)+','+(d.y*options.rectHeight)+')';});
 
   sEnter.append('rect')
-    .attr('width', 24)
-    .attr('height', 24)
+    .attr('width', options.rectWidth)
+    .attr('height', options.rectHeight)
     .attr('vector-effect', 'non-scaling-stroke')
     .style('opacity', 0.5)
     .style('stroke', '#aaa')
-    .style('fill', '#ccc');
+    .style('fill', function(d){return color(d.enName.length);});
 
   sEnter.append('text')
-    .attr('x', 12)
-    .attr('y', 16)
+    .attr('x', options.rectWidth/2)
+    .attr('y', options.rectHeight/2 + 2)
     .style('text-anchor', 'middle')
     .text(function(d){return d.thAbbr;});
 });
