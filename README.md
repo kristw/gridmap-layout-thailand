@@ -43,7 +43,7 @@ The data in each file is an array of tiles (provinces). Each tile is in this for
 
 ### Example Usage
 
-One way to use this is to use with [D3.js](http://d3js.org/). See a live example on [bl.ocks.org](http://bl.ocks.org/kristw/09ead46529638309cd60).
+One way to use this is to use with [D3.js](http://d3js.org/). See a live example on [bl.ocks.org](http://bl.ocks.org/kristw/09ead46529638309cd60). Or you can use the ready-to-use component [d3Kit-gridmap](https://github.com/kristw/d3kit-gridmap).
 
 ```javascript
 d3.json('path/to/gridmap-layout-thailand/dist/gridmap-layout-thailand.json', function(error, gridmapLayoutThailand){
