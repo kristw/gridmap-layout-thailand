@@ -21,15 +21,17 @@
     "grunt-cli": "~0.1.13",
     "grunt-gh-pages": "~0.10.0",
     "load-grunt-config": "~0.17.1",
-    "time-grunt": "~1.2.1"
+    "time-grunt": "~1.2.1",
+    "pkgfiles": "^2.3.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "precurate": "node src/precurate.js",
     "postcurate": "node src/postcurate.js && node_modules/uglify-js/bin/uglifyjs --compress --mangle -- src/output/gridmap-layout-thailand.js > src/output/gridmap-layout-thailand.min.js && cp src/input/*.* examples/data && cp src/output/*.* examples/data && cp src/output/gridmap-layout*.* dist",
     "preversion": "npm test",
-    "version": "npm run postcurate && git add -A dist",
-    "postversion": "pkgfiles",
-    "prepublish": "git push ; git push --tags"
+    "version": "npm run build && git add -A dist",
+    "postversion": "git push ; git push --tags; pkgfiles",
+    "prepublish": "pkgfiles",
+    "build": "grunt build"
   }
 }
